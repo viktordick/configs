@@ -1,0 +1,2 @@
+#!/bin/fish
+zenity --question --title "Exit Sway" --text "Are you sure?" && swaymsg exit

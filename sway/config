@@ -5,6 +5,7 @@ input type:keyboard {
 }
 
 output 'Samsung Electric Company U28E590 H4LN906176' scale 1.5
+bindsym $mod+grave exec togglescale
 
 font pango:monospace 8
 
@@ -167,3 +168,4 @@ include /etc/sway/config.d/*
 
 exec dbus-update-activation-environment --systemd DISPLAY WAYLAND_DISPLAY SWAYSOCK
 exec wallpapers
+exec kanshi

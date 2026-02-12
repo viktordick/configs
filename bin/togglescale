@@ -1,0 +1,7 @@
+#!/usr/bin/python
+import subprocess, json
+
+outputs = json.loads(subprocess.check_output(['swaymsg', '-t', 'get_outputs'], text=True))
+scale = next(filter(None, (output.get('scale') for output in outputs)))
+scale = 1 if scale == 1.5 else 1.5
+subprocess.run(['swaymsg', 'output', '*', 'scale', str(scale)])

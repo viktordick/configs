@@ -1,9 +1,0 @@
-#!/usr/bin/fish
-# swww-daemon &
-while true
-    # swww img (random choice ~/wallpapers/*)
-    swaymsg output '*' bg (random choice ~/wallpapers/*) fit '#000000'
-    # feh --no-fehbg --randomize --bg-max ~/wallpapers/*
-    sleep 60
-        or break
-end

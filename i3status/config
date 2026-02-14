@@ -54,7 +54,7 @@ memory {
 }
 read_file kblayout {
     format = "%content"
-    path = "/home/viktor/.config/current-kblayout"
+    path = "~/.config/current-kblayout"
 }
 
 volume master {

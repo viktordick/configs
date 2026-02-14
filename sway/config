@@ -166,6 +166,12 @@ bar {
 
 include /etc/sway/config.d/*
 
+assign [app_id="chromium"] 8
+assign [app_id="thunderbird-default"] 2
+
 exec dbus-update-activation-environment --systemd DISPLAY WAYLAND_DISPLAY SWAYSOCK
-exec wallpapers
-exec kanshi
+# exec systemctl --user import-environment DISPLAY WAYLAND_DISPLAY SWAYSOCK
+# exec hash dbus-update-activation-environment 2>/dev/null && \
+  # dbus-update-activation-environment --systemd MOZ_DBUS_REMOTE DISPLAY WAYLAND_DISPLAY SWAYSOCK
+
+exec startup

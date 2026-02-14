@@ -5,8 +5,12 @@ vim.opt.shiftwidth = 4
 vim.opt.expandtab = true
 vim.opt.wildmenu = true
 vim.opt.wildmode = 'list:longest'
-vim.api.nvim_set_keymap("i", "jk", "<ESC>", {noremap = true})
-vim.api.nvim_set_keymap('n', '<leader>b', ':ShowBufferList<CR>', {noremap=true})
+vim.keymap.set("i", "jk", "<ESC>")
+vim.keymap.set('n', '<leader>b', ':ShowBufferList<CR>')
+-- vim.keymap.set('n', '<leader>do', vim.diagnostic.open_float)
+vim.keymap.set('n', '<leader>d[', vim.diagnostic.goto_prev)
+vim.keymap.set('n', '<leader>d]', vim.diagnostic.goto_next)
+vim.keymap.set('n', '<leader>df', vim.lsp.buf.format)
 vim.g.loaded_netrw = 1
 vim.g.loaded_netrwPlugin = 1
 -- require("solarized").setup()
@@ -110,6 +114,15 @@ require("lazy").setup({
             require("dap-python").setup("python3")
         end,
     },
+    {
+        'nvim-telescope/telescope.nvim', version = '*',
+        dependencies = {
+            'nvim-lua/plenary.nvim',
+            -- optional but recommended
+            { 'nvim-telescope/telescope-fzf-native.nvim', build = 'make' },
+        }
+    },
+    { 'stevearc/conform.nvim', opts = {} },
   },
   -- Configure any other settings here. See the documentation for more details.
   -- colorscheme that will be used when installing plugins.
@@ -119,4 +132,76 @@ require("lazy").setup({
 })
 
 -- Required: Enable the language server
-vim.lsp.enable('pylsp')
+vim.lsp.config('ruff', {
+  settings = {
+    ruff = {
+      config = "inline",  -- allow LSP settings to override project config
+      line_length = 88,
+      format = { enabled = false },
+      select = { "E", "F", "W", "I" },
+      ignore = { "E501" }, -- Black handles line length
+    }
+  }
+})
+vim.lsp.enable('ruff')
+
+local function ruff_fix_all()
+  local params = vim.lsp.util.make_range_params()
+  params.context = {
+    only = { "source.fixAll", "source.organizeImports" },
+  }
+
+  vim.lsp.buf_request(0, "textDocument/codeAction", params, function(err, result, ctx)
+    if err or not result then
+      return
+    end
+    for _, action in ipairs(result) do
+      if action.edit or action.command then
+        -- Some servers return a Command, some an edit+command
+        if action.edit then
+          vim.lsp.util.apply_workspace_edit(action.edit, "utf-16")
+        end
+        if action.command then
+          vim.lsp.buf.execute_command(action.command)
+        end
+      end
+    end
+  end)
+end
+
+local function ruff_fix()
+  local params = vim.lsp.util.make_range_params()
+  params.context = { only = { "source.fixAll", "source.organizeImports" } }
+
+  vim.lsp.buf_request(0, "textDocument/codeAction", params, function(err, actions)
+    if err or not actions then
+      return
+    end
+    for _, action in ipairs(actions) do
+      if action.edit then
+        vim.lsp.util.apply_workspace_edit(action.edit, "utf-8")
+      end
+      if action.command then
+        vim.lsp.buf.execute_command(action.command)
+      end
+    end
+  end)
+end
+
+
+vim.api.nvim_create_autocmd("BufWritePre", {
+  pattern = "*.py",
+  callback = function()
+    -- ruff_fix()
+    vim.lsp.buf.format()
+  end,
+})
+
+require("conform").setup({
+  formatters_by_ft = {
+    python = { "black" },
+  },
+})
+
+local telescope = require('telescope.builtin')
+vim.keymap.set('n', '<C-D>', telescope.diagnostics, {noremap = true, silent = true})

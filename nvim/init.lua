@@ -11,12 +11,17 @@ vim.keymap.set('n', '<leader>b', ':ShowBufferList<CR>')
 vim.keymap.set('n', '<leader>d[', vim.diagnostic.goto_prev)
 vim.keymap.set('n', '<leader>d]', vim.diagnostic.goto_next)
 vim.keymap.set('n', '<leader>df', vim.lsp.buf.format)
+-- Toggle between solarized dark and light
+vim.keymap.set("n", "<F5>", function()
+  if vim.o.background == "dark" then
+    vim.o.background = "light"
+  else
+    vim.o.background = "dark"
+  end
+end, { desc = "Toggle Solarized background" })
+
 vim.g.loaded_netrw = 1
 vim.g.loaded_netrwPlugin = 1
--- require("solarized").setup()
--- vim.cmd('colorscheme solarized')
--- require("nvim-web-devicons").setup()
--- require("nvim-tree").setup()
 
 -- Bootstrap lazy.nvim
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"

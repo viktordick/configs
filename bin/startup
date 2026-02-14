@@ -11,6 +11,7 @@ kanshi &
 while true
 
     swaymsg output '*' bg (random choice ~/.local/share/wallpapers/*) fit '#000000'
+    sleep 60
 
     # suspend on low battery
     set -l out (acpi | grep -v unavailable)
@@ -19,5 +20,4 @@ while true
     test $percent -lt 10; and notify-send -u critical -- 'Battery low!'
     test $percent -lt 5; and mysuspend
 
-    sleep 10
 end;

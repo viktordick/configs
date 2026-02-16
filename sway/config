@@ -20,7 +20,7 @@ bindsym $mod+q kill
 
 # shutdown system and related
 bindsym $mod+Control+Delete exec systemctl poweroff
-bindsym $mod+Escape exec swaylock
+bindsym $mod+Escape exec swaylock -c 000000
 bindsym $mod+F1 exec mysuspend
 bindsym $mod+Home exec nautilus
 bindsym $mod+tab exec kbswitch

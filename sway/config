@@ -5,6 +5,7 @@ input type:keyboard {
 }
 
 output 'Samsung Electric Company U28E590 H4LN906176' scale 1.5
+output 'BNQ BenQ EW3270U V3N01127019' scale 1.5
 bindsym $mod+grave exec togglescale
 
 font pango:monospace 8
@@ -125,6 +126,10 @@ bindsym $mod+Shift+7 move container to workspace $ws7
 bindsym $mod+Shift+8 move container to workspace $ws8
 bindsym $mod+Shift+9 move container to workspace $ws9
 bindsym $mod+Shift+0 move container to workspace $ws10
+
+# Move workspace between screens
+bindsym $mod+Control+Left move workspace to output left
+bindsym $mod+Control+Right move workspace to output right
 
 # reload the configuration file
 bindsym $mod+Shift+c reload

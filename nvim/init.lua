@@ -136,75 +136,31 @@ require("lazy").setup({
   checker = { enabled = true },
 })
 
--- Required: Enable the language server
-vim.lsp.config('ruff', {
+-- ruff LSP: diagnostics only
+require("lspconfig").ruff.setup({
+  on_attach = function(client, bufnr)
+    -- Disable LSP formatting so it doesn't conflict with ruff format
+    client.server_capabilities.documentFormattingProvider = false
+    client.server_capabilities.documentRangeFormattingProvider = false
+  end,
   settings = {
     ruff = {
-      config = "inline",  -- allow LSP settings to override project config
-      line_length = 88,
-      format = { enabled = false },
-      select = { "E", "F", "W", "I" },
-      ignore = { "E501" }, -- Black handles line length
-    }
-  }
-})
-vim.lsp.enable('ruff')
-
-local function ruff_fix_all()
-  local params = vim.lsp.util.make_range_params()
-  params.context = {
-    only = { "source.fixAll", "source.organizeImports" },
-  }
-
-  vim.lsp.buf_request(0, "textDocument/codeAction", params, function(err, result, ctx)
-    if err or not result then
-      return
-    end
-    for _, action in ipairs(result) do
-      if action.edit or action.command then
-        -- Some servers return a Command, some an edit+command
-        if action.edit then
-          vim.lsp.util.apply_workspace_edit(action.edit, "utf-16")
-        end
-        if action.command then
-          vim.lsp.buf.execute_command(action.command)
-        end
-      end
-    end
-  end)
-end
-
-local function ruff_fix()
-  local params = vim.lsp.util.make_range_params()
-  params.context = { only = { "source.fixAll", "source.organizeImports" } }
-
-  vim.lsp.buf_request(0, "textDocument/codeAction", params, function(err, actions)
-    if err or not actions then
-      return
-    end
-    for _, action in ipairs(actions) do
-      if action.edit then
-        vim.lsp.util.apply_workspace_edit(action.edit, "utf-8")
-      end
-      if action.command then
-        vim.lsp.buf.execute_command(action.command)
-      end
-    end
-  end)
-end
-
-
-vim.api.nvim_create_autocmd("BufWritePre", {
-  pattern = "*.py",
-  callback = function()
-    -- ruff_fix()
-    vim.lsp.buf.format()
-  end,
+      lineLength = 88,
+      lint = {
+        select = { "E", "F", "W", "I" }, -- includes isort
+        ignore = { "E501" },
+      },
+    },
+  },
 })
 
 require("conform").setup({
   formatters_by_ft = {
-    python = { "black" },
+    python = { "ruff_fix", "ruff_format" },
+  },
+  format_on_save = {
+    timeout_ms = 2000,
+    lsp_fallback = false,
   },
 })
 

@@ -154,10 +154,64 @@ require("lspconfig").ruff.setup({
   },
 })
 
+local uv = vim.uv or vim.loop
+
+-- Walk upward to find a file
+local function find_in_parents(startpath, target)
+  local dir = startpath
+  while dir do
+    local candidate = dir .. "/" .. target
+    local stat = uv.fs_stat(candidate)
+    if stat then
+      return candidate
+    end
+
+    local parent = dir:match("(.+)/[^/]+$")
+    if parent == dir then
+      return nil
+    end
+    dir = parent
+  end
+end
+
 require("conform").setup({
   formatters_by_ft = {
-    python = { "ruff_fix", "ruff_format" },
+    python = function(bufnr)
+      local bufname = vim.api.nvim_buf_get_name(bufnr)
+      if bufname == "" then
+        return {}
+      end
+
+      local startpath = bufname:match("(.+)/[^/]+$")
+      if not startpath then
+        return {}
+      end
+
+      -- Look for pyproject.toml
+      local pyproject = find_in_parents(startpath, "pyproject.toml")
+      if not pyproject then
+        return {}
+      end
+
+      -- Read file
+      local fd = uv.fs_open(pyproject, "r", 438)
+      if not fd then
+        return {}
+      end
+
+      local stat = uv.fs_stat(pyproject)
+      local data = uv.fs_read(fd, stat.size)
+      uv.fs_close(fd)
+
+      -- Check for the section
+      if data and data:match("%[tool%.ruff%.lint%]") then
+        return { "ruff_fix", "ruff_format" }
+      end
+
+      return {}
+    end,
   },
+
   format_on_save = {
     timeout_ms = 2000,
     lsp_fallback = false,

@@ -218,5 +218,30 @@ require("conform").setup({
   },
 })
 
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = "python",
+  callback = function()
+    -- Enable wrapping for comments and text via gq
+    --    - c: format comments
+    --    - q: allow gq
+    --    - t: format normal text (for docstrings, etc.)
+    vim.opt_local.formatoptions:append("c")
+    vim.opt_local.formatoptions:append("q")
+    vim.opt_local.formatoptions:append("t")
+    vim.opt_local.textwidth = 88
+  end,
+})
+
+vim.api.nvim_create_autocmd("LspAttach", {
+  callback = function(args)
+    local bufnr = args.buf
+    if vim.bo[bufnr].filetype == "python" then
+      -- Force gq to use Vim's internal formatter, not LSP
+      vim.bo[bufnr].formatexpr = ""
+    end
+  end,
+})
+
+
 local telescope = require('telescope.builtin')
 vim.keymap.set('n', '<C-D>', telescope.diagnostics, {noremap = true, silent = true})

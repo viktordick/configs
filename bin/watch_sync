@@ -1,0 +1,56 @@
+#!/usr/bin/python
+import signal
+
+import matplotlib
+import matplotlib.pyplot as plt
+
+matplotlib.use("Qt5agg")
+
+x = []
+y = []
+
+plt.ion()
+fig = plt.figure()
+ax = fig.add_subplot(111)
+(line1,) = ax.plot([], [], "r-")
+
+terminating = False
+
+
+def quit(*args):
+    global terminating
+    terminating = True
+    fig.canvas.stop_event_loop()
+
+
+fig.canvas.mpl_connect("close_event", quit)
+signal.signal(signal.SIGTERM, quit)
+signal.signal(signal.SIGINT, quit)
+
+yrange = 1
+counter = 0
+while not terminating:
+    with open("/proc/meminfo") as f:
+        lines = f.readlines()
+    total = (
+        sum(
+            [
+                int(line.split()[1])
+                for line in lines
+                if line.startswith("Dirty:") or line.startswith("Writeback:")
+            ]
+        )
+        / 1000.0
+    )
+    x.append(counter)
+    y.append(total)
+    yrange = max(yrange, total + 1)
+    ax.set_xlim(-1, counter)
+    ax.set_ylim(0, yrange)
+    line1.set_xdata(x)
+    line1.set_ydata(y)
+    fig.canvas.draw()
+    fig.canvas.start_event_loop(1)
+    counter += 1
+
+fig.canvas.close()

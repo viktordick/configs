@@ -1,0 +1,26 @@
+#!/usr/bin/python3
+import json
+import time
+
+
+def parse(metric):
+    result = []
+    with open(f"/proc/pressure/{metric}") as f:
+        lines = f.read().split("\n")
+        for line in lines[:2]:
+            result.append(next(part.split("=")[1] for part in line.split() if
+                           part.startswith("avg60=")))
+    return [float(x) for x in result]
+
+while True:
+    res = parse("io")
+    state = "Idle"
+    if any(x > 5 for x in res):
+        state = "Warning"
+    if any(x > 20 for x in res):
+        state = "Critical"
+    print(json.dumps({
+        "text": f"{res[0]}%/{res[1]}%",
+        "state": state,
+    }), flush=True)
+    time.sleep(10)

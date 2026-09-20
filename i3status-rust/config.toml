@@ -8,9 +8,6 @@ idle_fg = "#abcdef"
 
 [icons]
 icons = "awesome4"
-[icons.overrides]
-bat = ["|E|", "|_|", "|=|", "|F|"]
-bat_charging = "|^| "
 
 [[block]]
 block = "cpu"
@@ -42,7 +39,7 @@ format_alt = " $icon_swap $swap_used_percents.eng(w:2) "
 
 [[block]]
 block = "battery"
-format = " $icon "
+format = " $icon $percentage "
 
 [[block]]
 block = "net"

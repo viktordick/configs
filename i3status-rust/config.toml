@@ -33,8 +33,9 @@ format = " $icon $available.eng(w:2) "
 
 [[block]]
 block = "memory"
-format = " $icon $mem_total_used_percents.eng(w:2) "
-format_alt = " $icon_swap $swap_used_percents.eng(w:2) "
+format = " $icon $mem_avail_percents.eng(w:2) "
+warning_swap = 100
+critical_swap = 100
 
 [[block]]
 block = "battery"
@@ -42,14 +43,17 @@ format = " $icon $percentage {$time_remaining.dur(hms:true, min_unit:m) |} "
 
 [[block]]
 block = "net"
-device = "en*"
-format = " $icon $ip ^icon_net_down$speed_down.eng(prefix:K) ^icon_net_up$speed_up.eng(prefix:K) "
-
+device = "^e"
+format = " ^icon_net_wired {$ip }{^icon_net_down$speed_down.eng(prefix:K) }{^icon_net_up$speed_up.eng(prefix:K) }"
+inactive_format = " ^icon_net_wired - "
+missing_format = " ^icon_net_wired - "
 
 [[block]]
 block = "net"
-device = "wlan*"
-format = " $icon $ip ^icon_net_down$speed_down.eng(prefix:K) ^icon_net_up$speed_up.eng(prefix:K) "
+device = "^w"
+format = " ^icon_net_wireless {$ip }{^icon_net_down$speed_down.eng(prefix:K) }{^icon_net_up$speed_up.eng(prefix:K) }"
+inactive_format = " ^icon_net_wireless - "
+missing_format = " ^icon_net_wireless - "
 [[block.click]]
 button = "left"
 cmd = "wifitoggle"
